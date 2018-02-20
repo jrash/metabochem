@@ -11,123 +11,17 @@ library(gplots)
 
 rm(list = ls())
 
-##################
-# Get new signficant metabolites
-##################
-
-#-------Read in data
-
-setwd("C:/Users/jrash/ubuntu_share/Google Drive/FourchesLab/metabolimics/significant_metabolites/")
-
-# Normalization and log transformation
-
-sdfset <- read.SDFset("common_test_training_molecule-v2.sdf")
-
-# read output from website and label activity
-# setwd("C:/Users/jrash/ubuntu_share/Google Drive/FourchesLab/Metabolimics/sig_met/")
-
-# test for significance with only compounds that have chemical structures
-f1 <- read.delim(file = "sample_factors_training.txt", header = T, row.names = 1)
-f2 <- read.csv(file = "sample_metabolites_training_excol_fix.csv", header = T, row.names = 1)
-
-# removing the observations with no factor levels
-f1 <- na.omit(f1)
-rownames(f1) <- f1$Sample.name
-
-# create patient identifier column
-f1$Subject_name <- gsub(" Plasma| Serum", "", f1$Subject_name, perl = T)
-
-f1 <- f1[, -2]
-colnames(f1) <- c("Patient","Organ", "Health_State", "Smoking_Status", "Gender")
-head(f1)
-
-f2 <- t(f2)
-
-
-#---------Get original metabolite names
-
-
-# fix compound names so that they are the same
-# format as the file provided by Melaine
-ids <- sdfid(sdfset)
-ids.new <- gsub(" |,","_",ids, perl = T)
-colnames(f2) <- gsub(" |,","_", colnames(f2), perl = T)
-
-# 130 compounds provided
-sum(ids.new %in% colnames(f2))
-dim(f2)
-
-f2 <- f2[, colnames(f2) %in% ids.new]
-orig.mets <- colnames(f2)[colnames(f2) %in% ids.new]
-
-#################
-# .04 FDR cutoff
-#################
-
-# When I use this cutoff I get exactly the same significance results as what they found in the paper
-# 
-
-#-------Serum training
-
-f3 <- read.csv(file = "serum_significance_Feihn.csv", header = T, row.names = 1)
-sigs <- f3$P.value
-names(sigs) <- rownames(f3)
-
-names(sigs)[1] <- "xylose"
-names(sigs)[150] <- "aspartic acid"
-sum(names(sigs) %in% ids)
-sigs <- sigs[names(sigs) %in% ids]
-
-
-new.mets <- names(sigs)
-new.mets <- gsub(" |,","_",new.mets, perl = T)
-
-# same metabolites orginally used in the metabolite set
-which(!orig.mets %in% new.mets)
-
-sigs <- as.numeric(as.character(sigs))
-
-sigs.fdr <- p.adjust(sigs, method = "BH")
-ori.serum.mets.05 <- new.mets[sigs.fdr < .05]
-
-#-------Plasma training
-
-f3 <- read.csv(file = "plasma_significance_Feihn.csv", header = T, row.names = 1)
-sigs <- f3$P.value
-names(sigs) <- rownames(f3)
-
-names(sigs)[1] <- "xylose"
-names(sigs)[150] <- "aspartic acid"
-sum(names(sigs) %in% ids)
-sigs <- sigs[names(sigs) %in% ids]
-
-
-new.mets <- names(sigs)
-new.mets <- gsub(" |,","_",new.mets, perl = T)
-
-# same metabolites orginally used in the metabolite set
-which(!orig.mets %in% new.mets)
-
-sigs <- as.numeric(as.character(sigs))
-
-sigs.fdr <- p.adjust(sigs, method = "BH")
-ori.plasma.mets.05 <- new.mets[sigs.fdr < .05]
-
-
 ## ----process, echo = T---------------------------------------------------
 train.dif.s <- 
   read.csv("C:/Users/jrash/ubuntu_share/Google Drive/FourchesLab/metabolimics/significant_metabolites/serum/healthstate_anova_wsig_control_training_serum_nonpara.txt")
 train.dif.p <- 
   read.csv("C:/Users/jrash/ubuntu_share/Google Drive/FourchesLab/metabolimics/significant_metabolites/plasma/healthstate_anova_wsig_control_training_plasma_nonpara.txt")
+train.dif.s$significance_adj <- train.dif.s$adj_pvalues < .075
+train.dif.p$significance_adj <- train.dif.p$adj_pvalues < .075
 
 load("C:/Users/jrash/ubuntu_share/Google Drive/FourchesLab/metabolimics/training_v_test/training_set_tq_normalize.rda")
 health_df <- d
 health_df$Patient <- NULL
-
-
-# ori.serum.mets.05 <- ori.serum.mets.05[-4]
-serum.met.idx <- which(train.dif.s$variables %in% ori.serum.mets.05) + 4
-plasma.met.idx <- which(train.dif.p$variables %in% ori.plasma.mets.05) + 4
 
 # make gender binary
 health_df$Gender <- ifelse(health_df$Gender == "F", 0, 1)
@@ -139,8 +33,8 @@ health_df$Patient <- NULL
 health_df_serum <- health_df[health_df$Organ == "Serum", ]
 
 # only keep significant metabolites
-colnames(health_df_serum)[serum.met.idx]
-health_df_serum <- health_df_serum[c(1:4, serum.met.idx)]
+colnames(health_df_serum)[which(train.dif.s$adj_pvalues < .075) + 4]
+health_df_serum <- health_df_serum[c(1:4, which(train.dif.s$adj_pvalues < .075) + 4)]
 
 health_df_serum$Organ <- NULL
 
@@ -148,8 +42,8 @@ health_df_serum$Organ <- NULL
 health_df_plasma <- health_df[health_df$Organ == "Plasma", ]
 
 # only keep significant metabolites
-colnames(health_df_plasma)[plasma.met.idx]
-health_df_plasma <- health_df_plasma[c(1:4, plasma.met.idx)]
+colnames(health_df_plasma)[which(train.dif.p$adj_pvalues < .075) + 4]
+health_df_plasma <- health_df_plasma[c(1:4, which(train.dif.p$adj_pvalues < .075) + 4)]
 
 health_df_plasma$Organ <- NULL
 
