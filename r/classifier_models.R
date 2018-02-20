@@ -488,7 +488,7 @@ dev.off()
 serum.perf.df[ncol(health_df_serum), 9] <- as.numeric(auc(y.test, test.pred.multi.maj.vote))
 serum.perf.df[ncol(health_df_serum) + 1, 9] <- as.numeric(auc(y.test, test.probs.multi))
 
-# make your crazy roc curves you crazy bastard---------------
+
 
 # Single metabolite------------------------
 
