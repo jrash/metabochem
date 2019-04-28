@@ -1,12 +1,13 @@
 library(ggplot2)
+library(rprojroot)
 
 simpleCap <- function(x) {
   s <- strsplit(x, " ")[[1]]
   paste(toupper(substring(s, 1,1)), substring(s, 2),
         sep="", collapse=" ")
 }
-# You will need to replace with the path to the data directory on your machine
-setwd("G:/My Drive/FourchesLab/github/Fourches_Lab/metabochem/data/")
+setwd(find_root("metabochem.Rproj"))
+setwd("analyses/data/")
 
 train.dif.s <- read.csv("healthstate_anova_wsig_control_training_serum_nonpara.txt")
 train.dif.p <- read.csv("healthstate_anova_wsig_control_training_plasma_nonpara.txt")

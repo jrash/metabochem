@@ -1,7 +1,4 @@
 FitLasso <- function(data, data.test, all.acc) {
-  # cml.clus.serum <- ModelTrain(data)
-  # CombineSplits(cml.clus.serum, metric = "error rate")
-  
   cor.cols <- findCorrelation(cor(data.matrix(data)), cutoff = .9)
   cor.cols
   

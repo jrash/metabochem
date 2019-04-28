@@ -2,11 +2,13 @@ library(psych)
 library(parcor)
 library(fpc)
 library(gplots)
+library(rprojroot)
 
 # You will need to replace with the path to the data directory on your machine
-setwd("G:/My Drive/FourchesLab/github/Fourches_Lab/metabochem/data/")
-train.dif.s <- read.csv("healthstate_anova_wsig_control_training_serum_nonpara.txt")
-train.dif.p <- read.csv("healthstate_anova_wsig_control_training_plasma_nonpara.txt")
+setwd(find_root("metabochem.Rproj"))
+setwd("analyses/data/")
+train.dif.s <- read.csv("significance_results/healthstate_anova_wsig_control_training_serum_nonpara.txt")
+train.dif.p <- read.csv("significance_results/healthstate_anova_wsig_control_training_plasma_nonpara.txt")
 
 load("training_set_tq_nonormalize.rda")
 d$Set <- paste0(rep("Training", nrow(d)), d$Health_State)
@@ -16,8 +18,8 @@ d_plasma <- d[d$Organ == "Plasma", ]
 health_df_serum <- d_serum
 health_df_plasma <- d_plasma
 
-test.dif.s <- read.csv("healthstate_anova_wsig_control_test_serum_nonpara.txt")
-test.dif.p <- read.csv("healthstate_anova_wsig_control_test_plasma_nonpara.txt")
+test.dif.s <- read.csv("significance_results/healthstate_anova_wsig_control_test_serum_nonpara.txt")
+test.dif.p <- read.csv("significance_results/healthstate_anova_wsig_control_test_plasma_nonpara.txt")
 
 load("test_set_tq_nonormalize.rda")
 d$Set <- paste0(rep("Test", nrow(d)), d$Health_State)
@@ -68,7 +70,7 @@ for (i in 1:3) {
     fpc::cluster.stats(d, cutree(hc,k))$avg.silwidth
   })
   nClus <- ks[which.max(ASW)]
-  tiff(paste0("../analyses/",
+  tiff(paste0("",
              names(single.met.list)[i], "par_asw.tiff"), res = 300,
        width = 7, height = 7, units = "in")
   plot(y=ASW, x=ks, type="l", ylab="Average Silhouette Width", xlab="Number of Clusters",
@@ -78,7 +80,7 @@ for (i in 1:3) {
 
   plot(hclust(d, method ="average"), main="Average Linkage with Correlation-Based Distance", xlab="", sub ="")
 
-  tiff(paste0("../analyses/",
+  tiff(paste0("",
              names(single.met.list)[i], "par_cor.tiff"),
        res = 300, width = 7, height = 7, units = "in")
   heatmap.2(data.matrix(d), trace="none", density.info="none", col=palette, mar=c(10,10),cexCol=1, cexRow=1,
@@ -93,7 +95,7 @@ for (i in 1:3) {
     fpc::cluster.stats(d, cutree(hc,k))$avg.silwidth
   })
   nClus <- ks[which.max(ASW)]
-  tiff(paste0("../analyses/",
+  tiff(paste0("",
              names(single.met.list)[i], "spe_asw.tiff"), res = 300,
        width = 7, height = 7, units = "in")
   plot(y=ASW, x=ks, type="l", ylab="Average Silhouette Width", xlab="Number of Clusters",
@@ -101,7 +103,7 @@ for (i in 1:3) {
   axis(side = 1, at = ks)
   dev.off()
 
-  tiff(paste0("../analyses/",
+  tiff(paste0("",
              names(single.met.list)[i], "spe_cor.tiff"),
        res = 300, width = 7, height = 7, units = "in")
   heatmap.2(data.matrix(d), trace="none", density.info="none", col=palette, mar=c(10,10),cexCol=1, cexRow=1,

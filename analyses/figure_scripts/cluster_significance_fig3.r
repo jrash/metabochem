@@ -1,10 +1,13 @@
-setwd("C:/Users/jrash/ubuntu_share/Google Drive/FourchesLab/metabolimics/significant_metabolites")
+library(rprojroot)
 
-train.dif.s <- read.csv("serum/healthstate_anova_wsig_control_training_serum_nonpara.txt")
-train.dif.p <- read.csv("plasma/healthstate_anova_wsig_control_training_plasma_nonpara.txt")
+setwd(find_root("metabochem.Rproj"))
+setwd("analyses/data/")
 
-test.dif.s <- read.csv("serum/healthstate_anova_wsig_control_test_serum_nonpara.txt")
-test.dif.p <- read.csv("plasma/healthstate_anova_wsig_control_test_plasma_nonpara.txt")
+train.dif.s <- read.csv("significance_results/healthstate_anova_wsig_control_training_serum_nonpara.txt")
+train.dif.p <- read.csv("significance_results/healthstate_anova_wsig_control_training_plasma_nonpara.txt")
+
+test.dif.s <- read.csv("significance_results/healthstate_anova_wsig_control_test_serum_nonpara.txt")
+test.dif.p <- read.csv("significance_results/healthstate_anova_wsig_control_test_plasma_nonpara.txt")
 
 # show the p-values
 

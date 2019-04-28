@@ -1,5 +1,4 @@
 FitLasso <- function(data, data.test, all.acc) {
-  
   cor.cols <- findCorrelation(cor(data.matrix(data)), cutoff = .9)
   cor.cols
   
